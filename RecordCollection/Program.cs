@@ -6,7 +6,7 @@ using System;
 var builder = WebApplication.CreateBuilder(args);
 
 var log = new LoggerConfiguration()
-    .WriteTo.Console()
+    .WriteTo.Console().WriteTo.File("logs/recordcollection.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
 builder.Services.AddSingleton<Serilog.ILogger>(log);
