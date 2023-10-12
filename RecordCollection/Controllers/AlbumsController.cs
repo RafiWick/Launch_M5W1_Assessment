@@ -25,7 +25,12 @@ namespace RecordCollection.Controllers
         public IActionResult Show(int? id)
         {
             var album = _context.Albums.FirstOrDefault(a => a.Id == id);
-
+            // null validation
+            if (album == null)
+            {
+                _logger.Warning("Id does not belong to any album in the database.");
+                return NotFound();
+            }
             return View(album);
         }
 
@@ -37,10 +42,16 @@ namespace RecordCollection.Controllers
         [HttpPost]
         public IActionResult Create(Album album)
         {
+            // model state validation
+            if (!ModelState.IsValid)
+            {
+                _logger.Warning("Album not created due to invalid model state");
+                return View("New", album);
+            }
             _context.Albums.Add(album);
             _context.SaveChanges();
 
-            _logger.Information("this is the create action");
+            _logger.Information("Album created successfully");
 
             return RedirectToAction(nameof(Index));
         }
@@ -50,10 +61,15 @@ namespace RecordCollection.Controllers
         public IActionResult Delete(int? id)
         {
             var album = _context.Albums.FirstOrDefault(a => a.Id == id);
+            if (album == null)
+            {
+                _logger.Warning("Album not deleted due to Id not matching with an existing album.");
+                return NotFound();
+            }
             _context.Albums.Remove(album);
             _context.SaveChanges();
 
-            _logger.Fatal($"Success! {album.Title} was removed from the database.");
+            _logger.Information($"Success! {album.Title} was removed from the database.");
 
             return RedirectToAction(nameof(Index));
         }
